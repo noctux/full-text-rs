@@ -1,0 +1,25 @@
+[package]
+name = "full-text-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+article_scraper = "2.0.0"
+async-trait = "0.1.73"
+atom_syndication = "0.12.2"
+axum = { version = "0.7.2", features = ["macros"] }
+bytes = "1.5.0"
+confique = "0.2.4"
+derive_more = "0.99.17"
+futures = "0.3.28"
+log = "0.4.20"
+quick-xml = "0.30.0"
+reqwest = "0.11.21"
+rss = "2.0.6"
+serde = "1.0.188"
+stderrlog = "0.5.4"
+structopt = "0.3.26"
+tokio = { version = "1", features = ["full"] }
+url = "2.4.1"
