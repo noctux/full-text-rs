@@ -10,6 +10,8 @@ use std::io::Cursor;
 use quick_xml::reader::Reader;
 use quick_xml::events::Event;
 
+use thiserror::Error;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug, Clone)]
@@ -26,31 +28,14 @@ pub struct ExtractionOpts {
     pub keep_original_content: bool,
 }
 
-#[derive(Debug, Clone)]
-struct NotAFeedTypeError;
-impl std::error::Error for NotAFeedTypeError {}
-impl std::fmt::Display for NotAFeedTypeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NotAFeedTypeError")
-    }
-}
-
-#[derive(Debug, Clone)]
-struct NoUrlError;
-impl std::error::Error for NoUrlError {}
-impl std::fmt::Display for NoUrlError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NoUrlError")
-    }
-}
-
-#[derive(Debug, Clone)]
-struct NoArticleError;
-impl std::error::Error for NoArticleError {}
-impl std::fmt::Display for NoArticleError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "NoArticleError")
-    }
+#[derive (Error, Debug)]
+pub enum FeedError {
+    #[error("object is of no known feed")]
+    NotAFeedTypeError,
+    #[error("item does not possess a link element")]
+    NoUrlError,
+    #[error("failed to retrieve article for url {0}")]
+    NoArticleError(String),
 }
 
 #[async_trait]
@@ -186,7 +171,7 @@ pub fn determine_feed_type(content: &[u8]) -> Result<FeedType> {
     loop {
         match reader.read_event_into(&mut buf) {
             Err(e) => return Err(e.into()),
-            Ok(Event::Eof) => return Err(NotAFeedTypeError.into()),
+            Ok(Event::Eof) => return Err(FeedError::NotAFeedTypeError.into()),
             Ok(Event::Start(e)) => {
                 match e.name().as_ref() {
                     b"feed"    => return Ok(FeedType::AtomFeed),
@@ -194,7 +179,7 @@ pub fn determine_feed_type(content: &[u8]) -> Result<FeedType> {
                     b"rdf:RDF" => return Ok(FeedType::RssFeed),
                     _ => {
                         debug!("Feed starts with tag: {:?}", e.name());
-                        return Err(NotAFeedTypeError.into());
+                        return Err(FeedError::NotAFeedTypeError.into());
                     },
                 }
             }
@@ -238,14 +223,14 @@ async fn url_to_article(scraper: &ArticleScraper, client: &Client, url_str: &str
     let url = Url::parse(&url_str)?;
     let article = scraper.parse(&url, false, &client, None).await?;
     trace!("Fulltext: {:?}", article.html);
-    return article.html.ok_or(NoArticleError.into())
+    return article.html.ok_or(FeedError::NoArticleError(url_str.to_string()).into())
 }
 
 async fn item_to_article(scraper: &ArticleScraper, client: &Client, item: &rss::Item) -> Result<String> {
     if let Some(url_str) = &item.link {
         url_to_article(&scraper, &client, &url_str).await
     } else {
-        Err(NoUrlError.into())
+        Err(FeedError::NoUrlError.into())
     }
 }
 
@@ -259,6 +244,6 @@ async fn entry_to_article(scraper: &ArticleScraper, client: &Client, entry: &ato
     if let Some(url_str) = get_primary_link(entry) {
         url_to_article(&scraper, &client, &url_str).await
     } else {
-        Err(NoUrlError.into())
+        Err(FeedError::NoUrlError.into())
     }
 }
