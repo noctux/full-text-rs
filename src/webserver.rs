@@ -1,10 +1,10 @@
 use log::*;
 use axum::{
     Router,
-    extract::{Query, State},
+    extract::{Query, State, Form},
     routing::get,
 
-    response::{IntoResponse, Response},
+    response::{IntoResponse, Response, Html, Redirect},
     http::{StatusCode, header},
 
     debug_handler,
@@ -13,6 +13,8 @@ use serde::Deserialize;
 use article_scraper::ArticleScraper;
 use std::sync::Arc;
 use std::convert::TryFrom;
+
+use pathetic::Uri;
 
 use super::config::ExtractionLimits;
 
@@ -66,10 +68,109 @@ async fn makefulltextfeed(Query(extraction_params): Query<ExtractionQueryOptions
     return response;
 }
 
+async fn show_form() -> Html<&'static str> {
+    Html(
+        r#"
+        <!doctype html>
+        <html>
+            <head></head>
+            <body>
+                <form action="/" method="post">
+                    <label for="url">
+                        Feed url:
+                        <input type="url" name="url" size="150">
+                    </label><br/>
+                    <label for="max_items">
+                        Maximum number of items (optional):
+                        <input type="number" name="max_items">
+                    </label>
+                    <br/>
+
+                    <group>
+                        Handling of failed items:
+                        <input type="radio" id="failed_default" name="keep_failed" value="Default" checked="checked">
+                        <label for="failed_default">use instance default</label>
+                        <input type="radio" id="failed_true" name="keep_failed" value="True">
+                        <label for="failed_true">keep in feed</label>
+                        <input type="radio" id="failed_false" name="keep_failed" value="False">
+                        <label for="failed_false">discard</label>
+                    </group>
+                    <br/>
+
+                    <group>
+                        Keep original content:
+                        <input type="radio" id="keep_original_default" name="keep_original_content" value="Default" checked="checked">
+                        <label for="keep_original_default">use instance default</label>
+                        <input type="radio" id="keep_original_true" name="keep_original_content" value="True">
+                        <label for="keep_original_true">keep in feed</label>
+                        <input type="radio" id="keep_original_false" name="keep_original_content" value="False">
+                        <label for="keep_original_false">discard</label>
+                    </group>
+                    <br/>
+
+                    <input type="submit" value="Get fulltext feed!">
+                </form>
+            </body>
+        </html>
+        "#,
+    )
+}
+
+#[derive(Deserialize, Debug)]
+enum TriState {
+    Default,
+    True,
+    False,
+}
+
+#[derive(Deserialize, Debug)]
+#[allow(dead_code)]
+struct Input {
+    url: String,
+    max_items: Option<usize>,
+    keep_failed: TriState,
+    keep_original_content: TriState,
+}
+
+async fn accept_form(Form(input): Form<Input>) -> Redirect {
+    trace!("Form submission: {:?}", input);
+    let mut uri =
+        Uri::default()
+            .with_path("/makefulltextfeed")
+            .with_query_pairs_mut(|q| q.append_pair("url", &input.url));
+    if let Some(max_items) = input.max_items {
+        uri.query_pairs_mut()
+            .append_pair("max_items", &max_items.to_string());
+    }
+    match input.keep_failed {
+        TriState::True => {
+            uri.query_pairs_mut()
+                .append_pair("keep_failed", "true");
+        },
+        TriState::False => {
+            uri.query_pairs_mut()
+                .append_pair("keep_failed", "false");
+        },
+        TriState::Default => (),
+    };
+    match input.keep_original_content {
+        TriState::True => {
+            uri.query_pairs_mut()
+                .append_pair("keep_original_content", "true");
+        },
+        TriState::False => {
+            uri.query_pairs_mut()
+                .append_pair("keep_original_content", "false");
+        },
+        TriState::Default => (),
+    }
+    Redirect::to(uri.as_str())
+}
+
 pub async fn serve(extraction_defaults: super::config::ExtractionOpts, extraction_limits: ExtractionLimits) {
     // build our application with a single route
     let app = Router::new()
-        .route("/", get(|| async { "Hello, World!" }))
+        .route("/", get(show_form).post(accept_form))
         .route("/makefulltextfeed", get(makefulltextfeed))
         .with_state(Arc::new(AppState {
             defaults: extraction_defaults,
