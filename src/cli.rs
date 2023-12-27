@@ -15,6 +15,20 @@ pub struct CliOpt {
     /// Verbose mode (-v, -vv, -vvv, etc)
     #[structopt(short = "v", long = "verbose", parse(from_occurrences))]
     verbose: usize,
+
+    #[structopt(subcommand)]
+    pub cmd: Command,
+}
+
+#[derive(StructOpt, Debug)]
+pub enum Command {
+    Serve {
+    },
+
+    MakeFulltext {
+        // Positional argument
+        url: String
+    }
 }
 
 pub fn init() -> CliOpt {

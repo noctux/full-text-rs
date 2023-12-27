@@ -6,8 +6,10 @@ mod config;
 mod feeds;
 mod webserver;
 
+use cli::Command;
+
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Parse CLI Options
     let cli_opts = cli::init();
     trace!("Parsed CLI options: {:?}", cli_opts);
@@ -36,22 +38,28 @@ async fn main() {
             None
         };
 
-    webserver::serve(
-        conf.fulltext_rss_filters.extraction_defaults,
-        conf.fulltext_rss_filters.extraction_limits).await;
+    match cli_opts.cmd {
+        Command::Serve {} => {
+            webserver::serve(
+                conf.fulltext_rss_filters.extraction_defaults,
+                conf.fulltext_rss_filters.extraction_limits).await;
+        },
+        Command::MakeFulltext { url } => {
+            let scraper = ArticleScraper::new(ftr_configs.as_deref()).await;
 
-    let scraper = ArticleScraper::new(ftr_configs.as_deref()).await;
+            let extract_conf : feeds::ExtractionOpts = conf.fulltext_rss_filters.extraction_defaults.into();
+            let effective = extract_conf.bound_by_limits(&conf.fulltext_rss_filters.extraction_limits);
+            let feed_res = feeds::get_fulltext_feed(&scraper, &url, &effective).await;
+            match feed_res {
+                Ok(feed) => {
+                    println!("{}", feed.to_string());
+                },
+                Err(e) => {
+                    return Err(e.into());
+                }
+            }
+        }
+    }
 
-    // let url =  "https://news.ycombinator.com/rss";
-    let url = "https://www.heise.de/security/rss/news-atom.xml";
-    let extract_conf = feeds::ExtractionOpts {
-        max_items: Some(5),
-        keep_failed: true,
-        keep_original_content: true
-    };
-    let feed_res = feeds::get_fulltext_feed(&scraper,url, &extract_conf).await;
-    match feed_res {
-        Ok(feed) => println!("{}", feed.to_string()),
-        Err(e) => println!("{:?}", e)
-    };
+    Ok(())
 }
