@@ -12,6 +12,10 @@ use quick_xml::events::Event;
 
 use thiserror::Error;
 
+use std::cmp;
+
+use super::config::ExtractionLimits;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug, Clone)]
@@ -27,6 +31,20 @@ pub struct ExtractionOpts {
     /// so only append the full-text
     pub keep_original_content: bool,
 }
+
+impl ExtractionOpts {
+    pub fn bound_by_limits(&self, limits: &ExtractionLimits) -> ExtractionOpts {
+        let mut bounded = self.clone();
+        bounded.max_items = match (self.max_items, limits.max_items) {
+            (Some(param), Some(limit)) => Some(cmp::min(param, limit)),
+            (Some(param), None)        => Some(param),
+            (None, Some(param))        => Some(param),
+            (None, None)               => None,
+        };
+        bounded
+    }
+}
+
 
 #[derive (Error, Debug)]
 pub enum FeedError {

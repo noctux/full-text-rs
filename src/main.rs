@@ -36,7 +36,9 @@ async fn main() {
             None
         };
 
-    webserver::serve().await;
+    webserver::serve(
+        conf.fulltext_rss_filters.extraction_defaults,
+        conf.fulltext_rss_filters.extraction_limits).await;
 
     let scraper = ArticleScraper::new(ftr_configs.as_deref()).await;
 
