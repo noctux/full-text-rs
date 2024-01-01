@@ -24,4 +24,5 @@ stderrlog = "0.5.4"
 structopt = "0.3.26"
 thiserror = "1.0.51"
 tokio = { version = "1", features = ["full"] }
+tokio-listener = { git = "https://github.com/vi/tokio-listener.git", features = ["serde", "axum07"] }
 url = "2.4.1"

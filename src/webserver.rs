@@ -7,18 +7,19 @@ use axum::{
     response::{IntoResponse, Response, Html, Redirect},
     http::{StatusCode, header},
 
-    debug_handler,
+    debug_handler
 };
 use serde::Deserialize;
 use article_scraper::ArticleScraper;
 use std::sync::Arc;
-use std::convert::TryFrom;
 
 use pathetic::Uri;
 
-use super::config::ExtractionLimits;
+use super::config::{ServerConf, ExtractionLimits};
 
 use super::feeds;
+
+type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Copy, Clone, Debug)]
 struct AppState {
@@ -167,7 +168,7 @@ async fn accept_form(Form(input): Form<Input>) -> Redirect {
     Redirect::to(uri.as_str())
 }
 
-pub async fn serve(extraction_defaults: super::config::ExtractionOpts, extraction_limits: ExtractionLimits) {
+pub async fn serve(listen_conf: ServerConf, extraction_defaults: super::config::ExtractionOpts, extraction_limits: ExtractionLimits) -> Result<()> {
     // build our application with a single route
     let app = Router::new()
         .route("/", get(show_form).post(accept_form))
@@ -177,7 +178,14 @@ pub async fn serve(extraction_defaults: super::config::ExtractionOpts, extractio
             limits: extraction_limits
         }));
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, app).await.unwrap();
+    let listener = tokio_listener::Listener::bind(
+        &listen_conf.address,
+        &tokio_listener::SystemOptions::default(),
+        &listen_conf.options.unwrap_or_default()
+    )
+    .await?;
+
+    tokio_listener::axum07::serve(listener, app.into_make_service()).await?;
+
+    Ok(())
 }

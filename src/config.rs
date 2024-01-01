@@ -1,4 +1,5 @@
 use confique::Config;
+use serde::Deserialize;
 
 #[derive(Config, Debug)]
 pub struct Conf {
@@ -6,7 +7,7 @@ pub struct Conf {
     pub fulltext_rss_filters: FullTextRSSFilterConf,
 
     #[config(nested)]
-    pub server: ServerConf
+    pub listen: ServerConf
 }
 
 #[derive(Config, Debug)]
@@ -47,8 +48,13 @@ impl Into<super::feeds::ExtractionOpts> for ExtractionOpts {
     }
 }
 
-#[derive(Config, Debug)]
+#[derive(Config, Deserialize, Debug)]
 pub struct ServerConf {
+    #[serde(flatten)]
+    #[config(env = "LISTEN_ADDRESS")]
+    pub address: tokio_listener::ListenerAddress,
+    #[serde(flatten)]
+    pub options: Option<tokio_listener::UserOptions>,
 }
 
 pub fn load_config(file: &std::path::Path) -> Result<Conf, confique::Error>  {

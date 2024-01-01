@@ -41,8 +41,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     match cli_opts.cmd {
         Command::Serve {} => {
             webserver::serve(
+                conf.listen,
                 conf.fulltext_rss_filters.extraction_defaults,
-                conf.fulltext_rss_filters.extraction_limits).await;
+                conf.fulltext_rss_filters.extraction_limits).await?;
         },
         Command::MakeFulltext { url } => {
             let scraper = ArticleScraper::new(ftr_configs.as_deref()).await;
