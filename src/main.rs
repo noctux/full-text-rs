@@ -42,14 +42,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Command::Serve {} => {
             webserver::serve(
                 conf.listen,
-                conf.fulltext_rss_filters.extraction_defaults,
-                conf.fulltext_rss_filters.extraction_limits).await?;
+                conf.extraction_defaults,
+                conf.extraction_limits).await?;
         },
         Command::MakeFulltext { url } => {
             let scraper = ArticleScraper::new(ftr_configs.as_deref()).await;
 
-            let extract_conf : feeds::ExtractionOpts = conf.fulltext_rss_filters.extraction_defaults.into();
-            let effective = extract_conf.bound_by_limits(&conf.fulltext_rss_filters.extraction_limits);
+            let extract_conf : feeds::ExtractionOpts = conf.extraction_defaults.into();
+            let effective = extract_conf.bound_by_limits(&conf.extraction_limits);
             let feed_res = feeds::get_fulltext_feed(&scraper, &url, &effective).await;
             match feed_res {
                 Ok(feed) => {

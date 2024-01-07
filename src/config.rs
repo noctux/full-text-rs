@@ -7,6 +7,12 @@ pub struct Conf {
     pub fulltext_rss_filters: FullTextRSSFilterConf,
 
     #[config(nested)]
+    pub extraction_defaults: ExtractionOpts,
+
+    #[config(nested)]
+    pub extraction_limits: ExtractionLimits,
+
+    #[config(nested)]
     pub listen: ServerConf
 }
 
@@ -16,12 +22,6 @@ pub struct FullTextRSSFilterConf {
 
     #[config(default = true)]
     pub use_filters: bool,
-
-    #[config(nested)]
-    pub extraction_defaults: ExtractionOpts,
-
-    #[config(nested)]
-    pub extraction_limits: ExtractionLimits,
 }
 
 #[derive(Config, Debug, Clone, Copy)]
