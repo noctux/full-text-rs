@@ -127,7 +127,7 @@ async fn show_form() -> Html<&'static str> {
                             </group>
                         </div>
                     </div>
-                    <input type="submit" value="Get fulltext feed!">
+                    <input type="submit" value="Get full-text feed!">
                 </form>
             </body>
         </html>
