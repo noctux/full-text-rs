@@ -1,0 +1,180 @@
+* full-text-rs
+
+** Synopsis
+
+Enhance your RSS/atom feeds by transforming them to full text feeds.
+
+In an ideal world, feeds help you to stay up to date with the news of the
+world. But occasionally, feeds just contain an abbreviated excerpt or just
+the first few words instead of the full article/blog post, forcing you to
+leave the comfort of your RSS reader.
+
+=full-text-rs= resolves this issue by transforming partial feeds into
+full-text feeds by fetching the remote website and extracting the content,
+either suing explicit extraction rules or mozilla's readability tool.
+
+** Usage
+
+=full-text-rs= offers two subcommands, =make-fulltext= and =serve=:
+
+#+BEGIN_SRC bash
+$ full-text-rs 0.1.0
+
+USAGE:
+    full-text-rs [FLAGS] --config <config-file> <SUBCOMMAND>
+
+FLAGS:
+    -h, --help       Prints help information
+    -q, --quiet      Silence all output
+    -V, --version    Prints version information
+    -v, --verbose    Verbose mode (-v, -vv, -vvv, etc)
+
+OPTIONS:
+    -c, --config <config-file>
+
+SUBCOMMANDS:
+    help             Prints this message or the help of the given subcommand(s)
+    make-fulltext
+    serve
+#+END_SRC
+
+Please note that =--config= currently constitutes a mandatory parameter.
+
+*** =make-fulltext=
+
+=make-fulltext= enables to use =full-text-rs= as a standalone cli utility and
+allows to fetch a single feed and emit the enriched full-text variant to
+standard out:
+
+#+BEGIN_SRC bash
+$ full-text-rs --config ./config.toml make-fulltext https://example.org/rss
+<rss>
+      ...
+</rss>
+#+END_SRC
+
+This can be useful if your feed reader allows to register "execurl" feeds
+(sometimes also referred to as snownews extensions as supported e.g. by
+[[https://newsboat.org/releases/2.33/docs/newsboat.html#_scripts_and_filters_snownews_extensions][newsboat]],
+[[https://sourceforge.net/projects/snownews/][snownews]] or
+[[https://github.com/lwindolf/liferea][liferea]]). In this case,
+=full-text-rs= can operate as a suitable feed provider.
+
+*** =serve=
+
+=serve= allows to operate as a web service and is thus able to integrate with
+any feed reader. Simply replace the feed url with a call to the web service.
+
+
+#+BEGIN_SRC bash
+$ LISTEN_ADDRESS=127.0.0.1:3000 full-text-rs --config ./config.toml serve
+#+END_SRC
+
+The path =/makefulltextfeed= provides the full-text enhancing capabilities:
+
+#+BEGIN_SRC bash
+$ curl 'http://localhost:3000/makefulltextfeed?url=https://example.org/rss&max_items=2'
+<rss>
+...
+</rss>
+#+END_SRC
+
+Accepted query parameters:
+
+| parameter             | type                     |description                                                                       |
+|-----------------------+--------------------------+----------------------------------------------------------------------------------|
+| url (mandatory)       | Url                      | Feed url of the feed to transform                                                |
+| max_items             | Unsigned integer         | Only process the first =max_items= items in the feed                             |
+| keep_failed           | Boolean (=true=/=false=) | Whether to keep items where extraction fails                                     |
+| keep_original_content | Boolean (=true=/=false=) | Whether to keep existing content and concatenate it with the extracted full-text |
+
+A simpel configurator is provided when navigating to the "root" path =/=
+(e.g. =http://localhost:3000/=) which helps creating suitable urls:
+
+[[screenshot.png]]
+
+** Configuration
+
+The tool is configured via the configuration file:
+
+#+BEGIN_SRC toml
+# Filter configuration
+[fulltext_rss_filters]  # Mandatory
+# Whether to use manually written extraction filters
+# If false, only use Mozilla's readability filters.
+use_filters = true
+# Where to find the filters, either manually written or a checkout of
+# https://github.com/fivefilters/ftr-site-config
+# Relative paths are evaluated relative to the CWD the tool was started in
+filter_path = "./ftr-site-config"
+
+# Where to listen to in "serve" mode
+[listen] # Mandatory
+# supports listening to "ip:port", "./unix_socket.sock", "@abstract_socket"
+# as well as socket activation via "sd-listen" and "inetd".
+# See https://github.com/vi/tokio-listener for syntax and options
+address = "127.0.0.1:3000"
+# Only uncomment und thus override  the default options when you are sure what you are doing
+# options = { tcp_reuse_port = true, tcp_only_v6 = false } # optional
+
+[extraction_defaults] # Optional
+# Override the default extraction settings when none are passed
+max_items             = 42    # When not set, defaults to: all/no limit
+keep_failed           = false # When not set, defaults to: true
+keep_original_content = true  # When not set, defaults to: false
+
+[extraction_limits] # Optional
+# Upper bounds on the settings passed as query options in serve mode
+max_items             = 42    # When not set, defaults to: all/no limit
+#+END_SRC
+
+The setting =listen.address= can further be overwritten by the environment
+variable =LISTEN_ADDRESS=, as also seen in [[#usage][Usage]].
+
+An exemplary configuration can also be found in =./example/config.toml=.
+
+
+** Deployment considerations
+
+- Reload intervals:
+  Please consider that =full-text-rs= has to query every linked site in the
+  feed, thus putting a higher load on the referenced webserver than a simple
+  feed-fetch. Thus, as a good netizen, please refrain from using
+  =full-text-rs= with very small reload intervals, resulting in frequent
+  fetches. Currently, =full-text-rs= does not do or support any caching.
+- Extractor maintanance:
+  Please consider sharing extractors with the community at the
+  [[https://github.com/fivefilters/ftr-site-config][ftr-site-config repository]],
+  be it updates for broken extractors or new ones so all can profit.
+- Feature set:
+  =full-text-rs= has a rather simplistic feature set. If you require more
+  features, consider using [[https://www.fivefilters.org/full-text-rss/][Full-Text-RSS by FiveFilters]].
+  Difference: I've originally implemented =full-text-rs= to add the
+  =keep_original_content= option, on the other hand, the FiveFilters tool
+  has seen years of polish, manifesting in a better UI, more battle-tested
+  parsing and supports advanced features such as XSS-mitigations (if your
+  RSS-Reader does not apply them on its own).
+
+** Hacking/Debugging
+
+Currently, the code base is rather compact and just cobbles together existing
+libraries, most notably:
+
+- [[https://crates.io/crates/article_scraper][article_scraper]] providing the
+  full-text--extraction capabilities
+- [[https://crates.io/crates/atom_syndication][atom_syndication]] / [[https://crates.io/crates/rss][rss]]
+  for the actual feed parsing
+- [[https://crates.io/crates/axum][axum]] and
+  [[https://crates.io/crates/tokio-listener][tokio_listener]] for the web
+  capabilities in =serve=
+
+When extraction, feed parsing or listening to a particular socket fails, it
+might be that =full-text-rs= just passes this error through.
+
+=full-text-rs= logs to the console when started in verbose mode, so consider
+running =full-text-rs -vvvvv= when debugging issues.
+
+** License
+
+AGPL3 - Because all the best things in life are free, and want to stay that
+way.
