@@ -74,41 +74,59 @@ async fn show_form() -> Html<&'static str> {
         r#"
         <!doctype html>
         <html>
-            <head></head>
+            <head>
+                <style>
+                    #radiobuttons {display: table;}
+                    #radiobuttons > div {display: table-row;}
+                    #radiobuttons span,group {display: table-cell;}
+                    div {
+                        line-height: 1.4;
+                    }
+                    input[type="submit"] {
+                        margin-top: 1.4ex;
+                    }
+                </style>
+            </head>
             <body>
                 <form action="/" method="post">
-                    <label for="url">
-                        Feed url:
-                        <input type="url" name="url" size="150">
-                    </label><br/>
-                    <label for="max_items">
-                        Maximum number of items (optional):
-                        <input type="number" name="max_items">
-                    </label>
-                    <br/>
+                    <div>
+                        <label for="url">
+                            Feed url:
+                            <input type="url" name="url" size="120">
+                        </label>
+                    </div>
+                    <div>
+                        <label for="max_items">
+                            Maximum number of items (optional):
+                            <input type="number" name="max_items">
+                        </label>
+                    </div>
 
-                    <group>
-                        Handling of failed items:
-                        <input type="radio" id="failed_default" name="keep_failed" value="Default" checked="checked">
-                        <label for="failed_default">use instance default</label>
-                        <input type="radio" id="failed_true" name="keep_failed" value="True">
-                        <label for="failed_true">keep in feed</label>
-                        <input type="radio" id="failed_false" name="keep_failed" value="False">
-                        <label for="failed_false">discard</label>
-                    </group>
-                    <br/>
+                    <div id='radiobuttons'>
+                        <div>
+                            <span>Handling of failed items:</span>
+                            <group>
+                                <input type="radio" id="failed_default" name="keep_failed" value="Default" checked="checked">
+                                <label for="failed_default">use instance default</label>
+                                <input type="radio" id="failed_true" name="keep_failed" value="True">
+                                <label for="failed_true">keep in feed</label>
+                                <input type="radio" id="failed_false" name="keep_failed" value="False">
+                                <label for="failed_false">discard</label>
+                            </group>
+                        </div>
 
-                    <group>
-                        Keep original content:
-                        <input type="radio" id="keep_original_default" name="keep_original_content" value="Default" checked="checked">
-                        <label for="keep_original_default">use instance default</label>
-                        <input type="radio" id="keep_original_true" name="keep_original_content" value="True">
-                        <label for="keep_original_true">keep in feed</label>
-                        <input type="radio" id="keep_original_false" name="keep_original_content" value="False">
-                        <label for="keep_original_false">discard</label>
-                    </group>
-                    <br/>
-
+                        <div>
+                            <span>Keep original content:</span>
+                            <group>
+                                <input type="radio" id="keep_original_default" name="keep_original_content" value="Default" checked="checked">
+                                <label for="keep_original_default">use instance default</label>
+                                <input type="radio" id="keep_original_true" name="keep_original_content" value="True">
+                                <label for="keep_original_true">keep in feed</label>
+                                <input type="radio" id="keep_original_false" name="keep_original_content" value="False">
+                                <label for="keep_original_false">discard</label>
+                            </group>
+                        </div>
+                    </div>
                     <input type="submit" value="Get fulltext feed!">
                 </form>
             </body>
