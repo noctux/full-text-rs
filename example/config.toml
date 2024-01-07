@@ -1,0 +1,27 @@
+# Filter configuration
+[fulltext_rss_filters]  # Mandatory
+# Whether to use manually written extraction filters
+# If false, only use Mozilla's readability filters.
+use_filters = true
+# Where to find the filters, either manually written or an checkout of
+# https://github.com/fivefilters/ftr-site-config
+filter_path = "./ftr-site-config"
+
+# Where to listen to in "serve" mode
+[listen] # Mandatory
+# supports listening to "ip:port", "./unix_socket.sock", "@abstract_socket"
+# as well as socket activation via "sd-listen" and "inetd".
+# See https://github.com/vi/tokio-listener for syntax and options
+address = "127.0.0.1:3000"
+# Only uncomment und thus override  the default options when you are sure what you are doing
+# options = { tcp_reuse_port = true, tcp_only_v6 = false } # optional
+
+[extraction_defaults] # Optional
+# Override the default extraction settings when none are passed
+max_items             = 42    # When not set, defaults to: all/no limit
+keep_failed           = false # When not set, defaults to: true
+keep_original_content = true  # When not set, defaults to: false
+
+[extraction_limits] # Optional
+# Upper bounds on the settings passed as query options in serve mode
+max_items             = 42    # When not set, defaults to: all/no limit
