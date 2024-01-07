@@ -2334,14 +2334,14 @@ dependencies = [
 
 [[package]]
 name = "tokio-listener"
-version = "0.2.3"
-source = "git+https://github.com/vi/tokio-listener.git#57c81e7389541d2898f5546652f66a8a5569d9ef"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2304dd11fd69a41b964c601422f3800368f72fbb3c3651e1fd0eab38bf6f57a7"
 dependencies = [
  "axum",
  "document-features",
  "futures-core",
  "futures-util",
- "hyper 0.14.27",
  "hyper 1.1.0",
  "hyper-util",
  "nix",
@@ -2350,6 +2350,7 @@ dependencies = [
  "serde_with",
  "socket2 0.5.4",
  "tokio",
+ "tokio-util",
  "tower",
  "tower-service",
  "tracing",
