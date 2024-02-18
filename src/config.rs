@@ -1,5 +1,6 @@
 use confique::Config;
 use serde::Deserialize;
+use std::path::Path;
 
 #[derive(Config, Debug)]
 pub struct Conf {
@@ -23,6 +24,20 @@ pub struct FullTextRSSFilterConf {
     #[config(default = true)]
     pub use_filters: bool,
 }
+
+impl FullTextRSSFilterConf {
+    pub fn get_custom_filterpath(&self) -> Option<Box<Path>> {
+        if self.use_filters {
+            match &self.filter_path {
+                Some(pathbuf) => Some(pathbuf.clone().into_boxed_path()),
+                None => panic!("setting use_filters, requires a valid filter_path")
+            }
+        } else {
+            None
+        }
+    }
+}
+
 
 #[derive(Config, Debug, Clone, Copy)]
 pub struct ExtractionOpts {

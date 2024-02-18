@@ -29,24 +29,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     trace!("Parsed Config from {:?}:\n{:?}", cli_opts.config_file, conf);
 
     // Create a properly configured ArticleScraper instance
-    let ftr_configs = if conf.fulltext_rss_filters.use_filters {
-            match conf.fulltext_rss_filters.filter_path {
-                Some(pathbuf) => Some(pathbuf.into_boxed_path()),
-                None => panic!("setting use_filters, requires a valid filter_path")
-            }
-        } else {
-            None
-        };
-
     match cli_opts.cmd {
         Command::Serve {} => {
             webserver::serve(
                 conf.listen,
+                conf.fulltext_rss_filters,
                 conf.extraction_defaults,
                 conf.extraction_limits).await?;
         },
         Command::MakeFulltext { url } => {
-            let scraper = ArticleScraper::new(ftr_configs.as_deref()).await;
+            let scraper = ArticleScraper::new(conf.fulltext_rss_filters.get_custom_filterpath().as_deref()).await;
 
             let extract_conf : feeds::ExtractionOpts = conf.extraction_defaults.into();
             let effective = extract_conf.bound_by_limits(&conf.extraction_limits);
