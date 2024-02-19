@@ -13,7 +13,7 @@ axum = { version = "0.7.2", features = ["macros"] }
 bytes = "1.5.0"
 confique = "0.2.5"
 derive_more = "0.99.17"
-futures = "0.3.28"
+futures = "0.3.30"
 log = "0.4.20"
 pathetic = "0.3.0"
 quick-xml = "0.31.0"
