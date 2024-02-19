@@ -355,9 +355,9 @@ checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
 
 [[package]]
 name = "confique"
-version = "0.2.4"
+version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7944dc1c6dec3f9b3adc127a921affd93baeea3d04c9b2d0a84380a243c9258b"
+checksum = "c37945ed2efccb10339a12eea282a5af9ebac77720d088723b2bbbdc44eca964"
 dependencies = [
  "confique-macro",
  "json5",
@@ -368,9 +368,9 @@ dependencies = [
 
 [[package]]
 name = "confique-macro"
-version = "0.0.8"
+version = "0.0.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7305b4979ffd6d8b02006da5520b21c66bfab961cd688b9b6db00780f61448ce"
+checksum = "3821efdaaab3c5297054a90201cc3afa2061fc6ba2bc5d2fa558b850a7dabefe"
 dependencies = [
  "heck 0.3.3",
  "proc-macro2",

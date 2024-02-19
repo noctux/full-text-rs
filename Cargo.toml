@@ -11,7 +11,7 @@ async-trait = "0.1.73"
 atom_syndication = "0.12.2"
 axum = { version = "0.7.2", features = ["macros"] }
 bytes = "1.5.0"
-confique = "0.2.4"
+confique = "0.2.5"
 derive_more = "0.99.17"
 futures = "0.3.28"
 log = "0.4.20"
