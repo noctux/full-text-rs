@@ -2354,9 +2354,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-listener"
-version = "0.3.0"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2304dd11fd69a41b964c601422f3800368f72fbb3c3651e1fd0eab38bf6f57a7"
+checksum = "4134661e12ec11c6276be73544a43144a357b08dfab5c41fd226e15b5bc9a6b2"
 dependencies = [
  "axum",
  "document-features",
