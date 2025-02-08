@@ -180,7 +180,7 @@ pub enum FeedType {
 /// Determine the feed type within `content`
 pub fn determine_feed_type(content: &[u8]) -> Result<FeedType> {
     let mut reader = Reader::from_reader(Cursor::new(content));
-    reader.trim_text(true);
+    reader.config_mut().trim_text(true);
     let mut buf = Vec::new();
 
     // Idea (stolen from newsboats Parser::parse_xmlnode):

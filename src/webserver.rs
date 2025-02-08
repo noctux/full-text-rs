@@ -205,7 +205,7 @@ pub async fn serve(listen_conf: ServerConf, fulltextrss_filter_conf: super::conf
     )
     .await?;
 
-    tokio_listener::axum07::serve(listener, app.into_make_service()).await?;
+    axum::serve(listener, app.into_make_service()).await?;
 
     Ok(())
 }
