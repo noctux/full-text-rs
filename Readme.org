@@ -11,7 +11,7 @@ leave the comfort of your RSS reader.
 
 =full-text-rs= resolves this issue by transforming partial feeds into
 full-text feeds by fetching the remote website and extracting the content,
-either suing explicit extraction rules or mozilla's readability tool.
+either using explicit extraction rules or mozilla's readability tool.
 
 ** Usage
 
