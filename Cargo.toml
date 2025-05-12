@@ -24,5 +24,5 @@ stderrlog = "0.6.0"
 structopt = "0.3.26"
 thiserror = "2.0.12"
 tokio = { version = "1", features = ["full"] }
-tokio-listener = { version = "0.5.0", features = ["serde", "axum08"] }
+tokio-listener = { version = "0.5.1", features = ["serde", "axum08"] }
 url = "2.5.4"
