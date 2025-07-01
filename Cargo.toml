@@ -16,7 +16,7 @@ derive_more = { version = "2.0.1", features = ["full"] }
 futures = "0.3.31"
 log = "0.4.27"
 pathetic = "0.3.0"
-quick-xml = "0.37.5"
+quick-xml = "0.38.0"
 reqwest = "0.12.15"
 rss = "2.0.12"
 serde = "1.0.219"
