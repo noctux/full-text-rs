@@ -841,7 +841,7 @@ dependencies = [
 
 [[package]]
 name = "full-text-rs"
-version = "0.1.0"
+version = "0.1.4"
 dependencies = [
  "article_scraper",
  "async-trait",
@@ -2948,9 +2948,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-listener"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1450e1a6d3f831849ca4c0d1233c10c63e21439037205ce6026c74e81f91d3d6"
+checksum = "c8a49c7295dbf705691c238002e4be940d5e0605f204683b1c8e55490032c79d"
 dependencies = [
  "axum",
  "document-features",
