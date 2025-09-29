@@ -22,7 +22,7 @@ rss = "2.0.12"
 serde = "1.0.219"
 stderrlog = "0.6.0"
 structopt = "0.3.26"
-thiserror = "2.0.12"
+thiserror = "2.0.17"
 tokio = { version = "1", features = ["full"] }
 tokio-listener = { version = "0.5.1", features = ["serde", "axum08"] }
 url = "2.5.4"
