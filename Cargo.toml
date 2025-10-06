@@ -9,7 +9,7 @@ edition = "2021"
 article_scraper = "2.1.4"
 async-trait = "0.1.88"
 atom_syndication = "0.12.7"
-axum = { version = "0.8.4", features = ["macros"] }
+axum = { version = "0.8.6", features = ["macros"] }
 bytes = "1.10.1"
 confique = { version = "0.3.0", features = ["toml"] }
 derive_more = { version = "2.0.1", features = ["full"] }
