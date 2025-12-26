@@ -16,6 +16,9 @@ use std::cmp;
 
 use super::config::ExtractionLimits;
 
+use std::panic::AssertUnwindSafe;
+use futures::FutureExt;
+
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 #[derive(Debug, Clone)]
@@ -239,9 +242,13 @@ async fn get_feed(client: &Client, url: &str) -> Result<Box<dyn PatchableFeed + 
 async fn url_to_article(scraper: &ArticleScraper, client: &Client, url_str: &str) -> Result<String> {
     debug!("Retrieving fulltext for {}", url_str);
     let url = Url::parse(&url_str)?;
-    let article = scraper.parse(&url, false, &client, None).await?;
+    let article_result = AssertUnwindSafe(scraper.parse(&url, false, &client, None)).catch_unwind().await;
+    let article = match article_result {
+        Err(_e) => return Err(Box::new(FeedError::NoArticleError(url_str.to_string()))),
+        Ok(a) => a
+    }?;
     trace!("Fulltext: {:?}", article.html);
-    return article.html.ok_or(FeedError::NoArticleError(url_str.to_string()).into())
+    return article.html.ok_or(FeedError::NoArticleError(url_str.to_string()).into());
 }
 
 async fn item_to_article(scraper: &ArticleScraper, client: &Client, item: &rss::Item) -> Result<String> {
