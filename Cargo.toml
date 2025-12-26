@@ -6,23 +6,23 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-article_scraper = "2.1.3"
+article_scraper = "2.1.4"
 async-trait = "0.1.89"
 atom_syndication = "0.12.7"
-axum = { version = "0.8.4", features = ["macros"] }
-bytes = "1.10.1"
-confique = { version = "0.3.1", features = ["toml"] }
-derive_more = { version = "2.0.1", features = ["full"] }
+axum = { version = "0.8.8", features = ["macros"] }
+bytes = "1.11.0"
+confique = { version = "0.4.0", features = ["toml"] }
+derive_more = { version = "2.1.1", features = ["full"] }
 futures = "0.3.31"
-log = "0.4.27"
+log = "0.4.29"
 pathetic = "0.3.0"
-quick-xml = "0.38.3"
-reqwest = "0.12.23"
+quick-xml = "0.38.4"
+reqwest = "0.12.28"
 rss = "2.0.12"
-serde = "1.0.219"
+serde = "1.0.228"
 stderrlog = "0.6.0"
 structopt = "0.3.26"
-thiserror = "2.0.16"
+thiserror = "2.0.17"
 tokio = { version = "1", features = ["full"] }
-tokio-listener = { version = "0.5.1", features = ["serde", "axum08"] }
+tokio-listener = { version = "0.5.2", features = ["serde", "axum08"] }
 url = "2.5.7"
