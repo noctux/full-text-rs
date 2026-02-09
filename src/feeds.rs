@@ -242,7 +242,7 @@ async fn get_feed(client: &Client, url: &str) -> Result<Box<dyn PatchableFeed + 
 async fn url_to_article(scraper: &ArticleScraper, client: &Client, url_str: &str) -> Result<String> {
     debug!("Retrieving fulltext for {}", url_str);
     let url = Url::parse(&url_str)?;
-    let article_result = AssertUnwindSafe(scraper.parse(&url, false, &client, None)).catch_unwind().await;
+    let article_result = AssertUnwindSafe(scraper.parse(&url, &client)).catch_unwind().await;
     let article = match article_result {
         Err(_e) => return Err(Box::new(FeedError::NoArticleError(url_str.to_string()))),
         Ok(a) => a
